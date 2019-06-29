@@ -3,8 +3,12 @@
     <Chat
       :chat="selectedChat"
       :messages="messages"
+      @new="saveNewMessage"
     />
-    <ChatList :chats="chats" />
+    <ChatList
+      :chats="chats"
+      @selected="startConversationWith"
+    />
   </div>
 </template>
 <script>
@@ -23,7 +27,19 @@ export default {
     };
   },
   methods: {
-    ...mapActions(["getChats"])
+    ...mapActions(["getChats", "getChatMessages"]),
+    startConversationWith(chat) {
+      this.getChatMessages({ chatId: chat.id }).then(
+        response => {
+          this.messages = response;
+          this.selectedChat = chat;
+        },
+        error => {}
+      );
+    },
+    saveNewMessage(message) {
+      this.messages.push(message);
+    }
   },
   created() {
     this.getChats().then(
@@ -35,3 +51,10 @@ export default {
   }
 };
 </script>
+
+<style lang="scss" scoped>
+.chat-app {
+  display: flex;
+  // height: 100% !important;
+}
+</style>

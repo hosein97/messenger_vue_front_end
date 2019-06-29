@@ -62,6 +62,15 @@ const actions = {
             commit('logout');
             resolve()
         })
+    },
+    getUser() {
+        return new Promise((resolve, reject) => {
+            http.get(`/api/user`).then(response => {
+                resolve(response.data.user)
+            }).catch(error => {
+                reject(error.message)
+            })
+        });
     }
 
 
