@@ -59,7 +59,6 @@ const actions = {
         return new Promise((resolve) => {
             localStorage.removeItem('token');
             setAuth(http)
-            commit('logout');
             resolve()
         })
     },
@@ -71,8 +70,30 @@ const actions = {
                 reject(error.message)
             })
         });
-    }
+    },
 
+    getContacts() {
+        return new Promise((resolve, reject) => {
+            http.get(`/api/user/contacts`).then(response => {
+                resolve(response.data)
+            }).catch(error => {
+                reject(error.message)
+            })
+        });
+    },
+
+
+    addContact({}, contactName) {
+        return new Promise((resolve, reject) => {
+            http.post(`/api/user/contacts/create`, {
+                contact_name: contactName
+            }).then(response => {
+                resolve(response.data)
+            }).catch(error => {
+                reject(error.message)
+            })
+        });
+    }
 
 
 };

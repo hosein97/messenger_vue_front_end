@@ -1,34 +1,48 @@
 <template>
-  <div class="chat-app">
-    <Chat
-      :chat="selectedChat"
-      :messages="messages"
-      @new="saveNewMessage"
-    />
-    <ChatList
-      :chats="chats"
-      @selected="startConversationWith"
-    />
+  <div>
+
+    <Menu @newChat="newChat" />
+    <div class="chat-app">
+      <Chat
+        :chat="selectedChat"
+        :messages="messages"
+        :permissions="permissions"
+        @new="saveNewMessage"
+      />
+      <ChatList
+        :chats="chats"
+        @selected="startConversationWith"
+      />
+    </div>
   </div>
 </template>
 <script>
 import { mapActions } from "vuex";
 import Chat from "./Chat";
 import ChatList from "./ChatList";
+import Menu from "./Menu";
 
 export default {
-  components: { Chat, ChatList },
+  components: { Chat, ChatList, Menu },
   name: "chat-app",
   data() {
     return {
       selectedChat: null,
       messages: [],
-      chats: []
+      chats: [],
+      permissions: []
     };
   },
   methods: {
-    ...mapActions(["getChats", "getChatMessages"]),
+    ...mapActions(["getChats", "getChatMessages", "getUser", "getPermissions"]),
     startConversationWith(chat) {
+      this.getPermissions({ chatId: chat.id }).then(
+        response => {
+          this.permissions = response;
+        },
+        error => {}
+      );
+
       this.getChatMessages({ chatId: chat.id }).then(
         response => {
           this.messages = response;
@@ -39,6 +53,15 @@ export default {
     },
     saveNewMessage(message) {
       this.messages.push(message);
+    },
+    newChat(chat) {
+      this.getChats().then(
+        chats => {
+          this.chats = chats;
+          this.startConversationWith(chat);
+        },
+        error => {}
+      );
     }
   },
   created() {
@@ -49,6 +72,17 @@ export default {
       error => {}
     );
   }
+  // mounted() {
+  //   this.getUser().then(
+  //     user => {
+  //       console.log(Echo);
+  //       Echo.private(`messages.${user.id}`).listen("NewMessage", e => {
+  //         // this.hanleIncoming(e.message);
+  //       });
+  //     },
+  //     error => {}
+  //   );
+  // }
 };
 </script>
 
